@@ -1,12 +1,12 @@
 # NeuroSync Local API
 
-## 01/01/25 Model + code updates
+## NEW : [Train your own model](https://github.com/AnimaVR/NeuroSync_Trainer_Lite)
 
-The final version of the 0.01 model has been added. V0.02 is due february with a new architecture.
+## 08/02/25 Open Source Audio2Face Model + code updates
+
+The first version of the 0.02 model has been added. 
 
 You MUST update all .py as the old ones wont work with the latest model (many changes involved in the model over this research period!)
-
-This version is the best so far but struggles with dimensions at the furthest points from the mouth, some dimensions are zero'd out to keep things smooth.
 
 ## Talk to a NeuroSync prototype live on Twitch : [Visit Mai](https://www.twitch.tv/mai_anima_ai)
 

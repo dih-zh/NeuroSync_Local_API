@@ -1,5 +1,6 @@
-# This code is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
-# For more details, visit: https://creativecommons.org/licenses/by-nc/4.0/
+# This software is licensed under a **dual-license model**
+# For individuals and businesses earning **under $1M per year**, this software is licensed under the **MIT License**
+# Businesses or organizations with **annual revenue of $1,000,000 or more** must obtain permission to use this software commercially.
 
 # audio_processing.py
 
@@ -84,7 +85,7 @@ def process_audio_features(audio_features, model, device, config):
     final_decoded_outputs = np.concatenate(all_decoded_outputs, axis=0)[:num_frames]
     final_decoded_outputs = ensure_2d(final_decoded_outputs)
     final_decoded_outputs[:, :61] /= 100  
-    final_decoded_outputs = zero_columns(final_decoded_outputs) 
+#    final_decoded_outputs = zero_columns(final_decoded_outputs) 
     # you can zero problematic columns if needed.
     return final_decoded_outputs
 
