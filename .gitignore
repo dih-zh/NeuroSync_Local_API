@@ -1,5 +1,6 @@
 generated/*
 model/*.pth
+utils/model/*.pth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
