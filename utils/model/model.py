@@ -6,21 +6,34 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 def load_model(model_path, config, device):
+    
+    device = torch.device(device) 
+
     hidden_dim = config['hidden_dim']
     n_layers = config['n_layers']
     num_heads = config['num_heads']
-
+    use_half_precision = config['use_half_precision']
+    
     encoder = Encoder(config['input_dim'], hidden_dim, n_layers, num_heads)
     decoder = Decoder(config['output_dim'], hidden_dim, n_layers, num_heads)
     model = Seq2Seq(encoder, decoder, device).to(device)
-    
-    state_dict = torch.load(model_path, map_location=device)
 
+    state_dict = torch.load(model_path, map_location=device)
     model.load_state_dict(state_dict, strict=True)
+
+    if use_half_precision and device.type == 'cuda':
+        model = model.to(torch.float16)
+        print("⚡ Model converted to float16 (half-precision).")
+    else:
+        print("🚫 Half-precision not applied (CPU or unsupported GPU or False set in config).")
+
     model.eval()
-    
     return model
+
+
+
 
 # -------------------------------------------------------------------------------------------
 # Global Positional Encoding
