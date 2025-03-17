@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import flask
 import base64
+import time
 
 from utils.generate_face_shapes import generate_facial_data_from_bytes
 from utils.model.model import load_model
@@ -28,20 +29,23 @@ def health():
 
 @app.route("/audio_to_blendshapes", methods=["POST"])
 def audio_to_blendshapes_route():
-    # TODO: Create a streamable version.
-    print(request.json)
+    start = time.perf_counter()
     if request.json:
         audio_bytes = request.json["audio"]
         audio_bytes = base64.b64decode(audio_bytes)
+        print(f"Parsing took {time.perf_counter() - start:.4f} seconds")
 
         generated_facial_data = generate_facial_data_from_bytes(
             audio_bytes, blendshape_model, device, config
         )
+        print(f"First step took {time.perf_counter() - start:.4f} seconds")
         generated_facial_data_list = (
             generated_facial_data.tolist()
             if isinstance(generated_facial_data, np.ndarray)
             else generated_facial_data
         )
+        end = time.perf_counter()
+        print(f"Total request took {end - start:.4f} seconds")
 
         return jsonify({"blendshapes": generated_facial_data_list})
 

@@ -1,8 +1,8 @@
-FROM python:3.12-slim
+FROM europe-docker.pkg.dev/vertex-ai/prediction/pytorch-cpu.2-4:latest
 
-COPY ./requirements.txt /
-RUN pip install --no-cache-dir -r requirements.txt && \
-  rm ./requirements.txt
+COPY ./requirements.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt && \
+  rm /requirements.txt
 
 RUN mkdir /app
 
