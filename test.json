@@ -1,0 +1,10 @@
+{
+  "instances": [
+    {
+      "instance_key_1": "value"
+    }
+  ],
+  "parameters": {
+    "audio": [0.1, 0.2, 0.3]
+  }
+}
