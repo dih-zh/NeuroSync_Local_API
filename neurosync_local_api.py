@@ -28,6 +28,7 @@ def health():
 
 @app.route("/audio_to_blendshapes", methods=["POST"])
 def audio_to_blendshapes_route():
+    # TODO: Create a streamable version.
     print(request.json)
     if request.json:
         audio_bytes = request.json["audio"]
