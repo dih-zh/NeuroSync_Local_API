@@ -45,7 +45,7 @@ def audio_to_blendshapes_route():
             else generated_facial_data
         )
         end = time.perf_counter()
-        print(f"Total request took {end - start:.4f} seconds")
+        print(f"Total request took {end - start:.4f} seconds on device: {device}")
 
         return jsonify({"blendshapes": generated_facial_data_list})
 
