@@ -8,10 +8,13 @@ import numpy as np
 import torch
 from torch.cuda.amp import autocast
 
+# torch.multiprocessing.set_start_method("spawn")
+
+
 def decode_audio_chunk(audio_chunk, model, device, config):
     # Use precision based on config
     use_half_precision = config.get("use_half_precision", True)
-    
+
     # Force float16 if half precision is desired; else float32
     dtype = torch.float16 if use_half_precision else torch.float32
 
@@ -20,7 +23,6 @@ def decode_audio_chunk(audio_chunk, model, device, config):
 
     with torch.no_grad():
         if use_half_precision:
-
             with autocast(dtype=torch.float16):
                 encoder_outputs = model.encoder(src_tensor)
                 output_sequence = model.decoder(encoder_outputs)
@@ -38,18 +40,20 @@ def concatenate_outputs(all_decoded_outputs, num_frames):
     final_decoded_outputs = final_decoded_outputs[:num_frames]
     return final_decoded_outputs
 
+
 def ensure_2d(final_decoded_outputs):
     if final_decoded_outputs.ndim == 3:
-        final_decoded_outputs = final_decoded_outputs.reshape(-1, final_decoded_outputs.shape[-1])
+        final_decoded_outputs = final_decoded_outputs.reshape(
+            -1, final_decoded_outputs.shape[-1]
+        )
     return final_decoded_outputs
+
 
 def pad_audio_chunk(audio_chunk, frame_length, num_features):
     if audio_chunk.shape[0] < frame_length:
         pad_length = frame_length - audio_chunk.shape[0]
         padding = np.pad(
-            audio_chunk,
-            pad_width=((0, pad_length), (0, 0)),
-            mode='reflect'
+            audio_chunk, pad_width=((0, pad_length), (0, 0)), mode="reflect"
         )
         audio_chunk = np.vstack((audio_chunk, padding[-pad_length:, :num_features]))
     return audio_chunk
@@ -59,18 +63,21 @@ def blend_chunks(chunk1, chunk2, overlap):
     actual_overlap = min(overlap, len(chunk1), len(chunk2))
     if actual_overlap == 0:
         return np.vstack((chunk1, chunk2))
-    
+
     blended_chunk = np.copy(chunk1)
     for i in range(actual_overlap):
-        alpha = i / actual_overlap 
-        blended_chunk[-actual_overlap + i] = (1 - alpha) * chunk1[-actual_overlap + i] + alpha * chunk2[i]
-        
+        alpha = i / actual_overlap
+        blended_chunk[-actual_overlap + i] = (1 - alpha) * chunk1[
+            -actual_overlap + i
+        ] + alpha * chunk2[i]
+
     return np.vstack((blended_chunk, chunk2[actual_overlap:]))
+
 
 def process_audio_features(audio_features, model, device, config):
     # Configuration settings
-    frame_length = config['frame_size']  # Number of frames per chunk (e.g., 64)
-    overlap = config.get('overlap', 32)  # Number of overlapping frames between chunks
+    frame_length = config["frame_size"]  # Number of frames per chunk (e.g., 64)
+    overlap = config.get("overlap", 32)  # Number of overlapping frames between chunks
     num_features = audio_features.shape[1]
     num_frames = audio_features.shape[0]
     all_decoded_outputs = []
@@ -89,7 +96,7 @@ def process_audio_features(audio_features, model, device, config):
 
         # 🔥 Pass config to dynamically choose precision
         decoded_outputs = decode_audio_chunk(audio_chunk, model, device, config)
-        decoded_outputs = decoded_outputs[:end_idx - start_idx]
+        decoded_outputs = decoded_outputs[: end_idx - start_idx]
 
         # Blend with the last chunk if it exists
         if all_decoded_outputs:
@@ -131,7 +138,32 @@ def process_audio_features(audio_features, model, device, config):
 
 
 def zero_columns(data):
-    columns_to_zero = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
-    modified_data = np.copy(data) 
+    columns_to_zero = [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+    ]
+    modified_data = np.copy(data)
     modified_data[:, columns_to_zero] = 0
     return modified_data
