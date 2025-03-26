@@ -1,15 +1,7 @@
-FROM nvidia/cuda:12.8.1-runtime-ubuntu24.04
-
-RUN apt-get update && \
-  apt-get -y install software-properties-common curl && \
-  add-apt-repository ppa:deadsnakes/ppa && \
-  apt-get install -y python3.12 python3.12-venv --no-install-recommends && \
-  rm -rf /var/lib/apt/lists/*
-
-RUN python3.12 -m venv /opt/venv
+FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-runtime
 
 COPY ./requirements.txt /
-RUN /opt/venv/bin/pip install --no-cache-dir -r /requirements.txt && \
+RUN pip install --no-cache-dir -r /requirements.txt && \
   rm /requirements.txt
 
 RUN mkdir /app
@@ -22,4 +14,5 @@ WORKDIR /app
 EXPOSE 5000
 # CMD ["/opt/venv/bin/gunicorn", "neurosync_local_api:app", "--timeout=0", "--preload", \
 #   "--workers=1", "--worker-class=gevent", "--threads=4", "--bind=0.0.0.0:5000"]
-CMD ["/opt/venv/bin/python", "neurosync_local_api.py"]
+CMD ["python", "neurosync_local_api.py"]
+
